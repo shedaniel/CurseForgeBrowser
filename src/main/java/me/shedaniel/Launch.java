@@ -6,7 +6,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.shedaniel.parser.ModsPageParser;
 import me.shedaniel.parser.VersionParser;
+import me.shedaniel.ui.BroswerUI;
 import me.shedaniel.utils.ConnectionUtils;
+import me.shedaniel.utils.ModCategory;
 import me.shedaniel.utils.ModVersion;
 import org.apache.commons.io.IOUtils;
 
@@ -23,9 +25,14 @@ public class Launch {
     public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static VersionParser versionParser = new VersionParser();
     private static VersionParser.VersionElement[] versionElements;
+    private static BroswerUI ui;
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Thread thread = new Thread(ui = new BroswerUI());
+        thread.start();
+        ui.editDialogText("Parsing Versions");
         List<ModVersion> versions = Lists.newArrayList();
+        ModsPageParser pageParser = new ModsPageParser();
         if (!API_TOKEN.equalsIgnoreCase("")) {
             Map<String, String> tokenMap = Maps.newHashMap();
             tokenMap.put("X-Api-Token", API_TOKEN);
@@ -33,10 +40,17 @@ public class Launch {
             versionElements = versionParser.parse(versionsString);
             versions = Arrays.asList(versionElements).stream().map(versionElement -> new ModVersion(false, versionElement)).collect(Collectors.toList());
         } else {
-            ModsPageParser pageParser = new ModsPageParser();
             versions = pageParser.parseVersions();
         }
-        new CurseForgeBrowser(versions.toArray(new ModVersion[versions.size()]));
+        ui.editDialogText("Parsing Mod Categories");
+        ModCategory[] categories = pageParser.parseCategories();
+        ui.editDialogText("Initialising Browser");
+        ui.removeDialog();
+        ui.openBrowser();
+        new CurseForgeBrowser(versions.toArray(new ModVersion[versions.size()]), categories);
     }
     
+    public static BroswerUI getUI() {
+        return ui;
+    }
 }
