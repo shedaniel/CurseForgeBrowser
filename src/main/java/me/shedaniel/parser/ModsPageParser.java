@@ -19,7 +19,7 @@ public class ModsPageParser {
     private Document document;
     
     public ModsPageParser() throws IOException {
-        this(null, SortType.POPULARITY, 1, new ModCategory(null, null, "/mc-mods"));
+        this(null, SortType.POPULARITY, 1, new ModCategory(new URL("https://media.forgecdn.net/avatars/thumbnails/52/101/64/64/636111139584399357.png"), "Mods", "/mc-mods"));
     }
     
     public ModsPageParser(ModVersion version, SortType type, int page, ModCategory category) throws IOException {

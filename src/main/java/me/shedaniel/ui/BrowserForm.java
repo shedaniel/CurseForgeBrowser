@@ -1,6 +1,8 @@
 package me.shedaniel.ui;
 
 import me.shedaniel.CurseForgeBrowser;
+import me.shedaniel.utils.ModCategory;
+import me.shedaniel.utils.ThreadUtils;
 
 import javax.swing.*;
 
@@ -8,7 +10,7 @@ public class BrowserForm {
     
     private JPanel basePanel;
     private JComboBox versionSelector;
-    private JList categoryList;
+    private JList<ModCategory> categoryList;
     private JList viewingList;
     private JPanel display;
     private JButton nextButton;
@@ -16,16 +18,16 @@ public class BrowserForm {
     private JLabel pageLabel;
     
     public BrowserForm() {
-        versionSelector.addActionListener(actionEvent -> CurseForgeBrowser.getInstance().update());
-        categoryList.addListSelectionListener(listSelectionEvent -> CurseForgeBrowser.getInstance().update());
-        backButton.addActionListener(actionEvent -> {
-            CurseForgeBrowser.getInstance().setPage(CurseForgeBrowser.getInstance().getPage() - 1);
+        versionSelector.addActionListener(actionEvent -> ThreadUtils.run(() -> CurseForgeBrowser.getInstance().update()));
+        categoryList.addListSelectionListener(listSelectionEvent -> ThreadUtils.run(() -> CurseForgeBrowser.getInstance().update()));
+        backButton.addActionListener(actionEvent -> ThreadUtils.run(() -> {
+            CurseForgeBrowser.getInstance().setPage(MathUtils.roll(CurseForgeBrowser.getInstance().getPage() - 1, 1, CurseForgeBrowser.getInstance().getCategoryPages(), CurseForgeBrowser.getInstance().getCategoryPages()));
             CurseForgeBrowser.getInstance().update();
-        });
-        nextButton.addActionListener(actionEvent -> {
-            CurseForgeBrowser.getInstance().setPage(CurseForgeBrowser.getInstance().getPage() + 1);
+        }));
+        nextButton.addActionListener(actionEvent -> ThreadUtils.run(() -> {
+            CurseForgeBrowser.getInstance().setPage(MathUtils.roll(CurseForgeBrowser.getInstance().getPage() + 1, 1, CurseForgeBrowser.getInstance().getCategoryPages(), CurseForgeBrowser.getInstance().getCategoryPages()));
             CurseForgeBrowser.getInstance().update();
-        });
+        }));
     }
     
     public JPanel getBasePanel() {
@@ -42,5 +44,9 @@ public class BrowserForm {
     
     public JLabel getPageLabel() {
         return pageLabel;
+    }
+    
+    public JList getViewingList() {
+        return viewingList;
     }
 }

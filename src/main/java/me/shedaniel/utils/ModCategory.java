@@ -1,5 +1,9 @@
 package me.shedaniel.utils;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
 import java.net.URL;
 
 public class ModCategory {
@@ -12,6 +16,17 @@ public class ModCategory {
         this.imgUrl = imgUrl;
         this.name = name;
         this.linkExtender = linkExtender;
+    }
+    
+    public ImageIcon getImageIcon(int w, int h) {
+        try {
+            ImageIcon imageIcon = new ImageIcon(ImageIO.read(imgUrl));
+            Image image = imageIcon.getImage();
+            Image scaledImage = image.getScaledInstance(w, h, java.awt.Image.SCALE_SMOOTH);
+            return new ImageIcon(scaledImage);
+        } catch (IOException e) {
+            return null;
+        }
     }
     
     public URL getImgUrl() {

@@ -10,6 +10,7 @@ import me.shedaniel.ui.BroswerUI;
 import me.shedaniel.utils.ConnectionUtils;
 import me.shedaniel.utils.ModCategory;
 import me.shedaniel.utils.ModVersion;
+import me.shedaniel.utils.ThreadUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -28,8 +29,7 @@ public class Launch {
     private static BroswerUI ui;
     
     public static void main(String[] args) throws IOException, InterruptedException {
-        Thread thread = new Thread(ui = new BroswerUI());
-        thread.start();
+        ThreadUtils.run(ui = new BroswerUI());
         ui.editDialogText("Parsing Versions");
         List<ModVersion> versions = Lists.newArrayList();
         ModsPageParser pageParser = new ModsPageParser();

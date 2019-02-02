@@ -10,4 +10,12 @@ public class MathUtils {
         return a;
     }
     
+    public static int roll(int a, int min, int max, int addition) {
+        while (a < min)
+            a += addition;
+        while (a > max)
+            a -= addition;
+        return a;
+    }
+    
 }

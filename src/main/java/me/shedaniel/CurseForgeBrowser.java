@@ -1,17 +1,19 @@
 package me.shedaniel;
 
+import com.google.common.collect.Maps;
 import me.shedaniel.parser.ModsPageParser;
 import me.shedaniel.ui.MathUtils;
-import me.shedaniel.utils.ModCategory;
-import me.shedaniel.utils.ModVersion;
-import me.shedaniel.utils.SortType;
+import me.shedaniel.utils.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class CurseForgeBrowser {
     
     private static CurseForgeBrowser instance;
+    private Map<Integer, SimpleModContainer[]> modsCache;
     private ModVersion[] versions;
     private ModCategory[] categories;
     private int page = 1, categoryPages;
@@ -29,6 +31,7 @@ public class CurseForgeBrowser {
         Launch.getUI().initCategories(Arrays.asList(categories));
         lastCategory = categories[0];
         lastVersion = versions[0];
+        this.modsCache = Maps.newHashMap();
         update();
     }
     
@@ -41,7 +44,7 @@ public class CurseForgeBrowser {
     }
     
     public void update() {
-        if (lastUpdate != -1 && System.currentTimeMillis() - lastUpdate < 2000)
+        if (lastUpdate != -1 && System.currentTimeMillis() - lastUpdate < 2000 && false)
             return;
         lastUpdate = System.currentTimeMillis();
         ModCategory category = CurseForgeBrowser.getInstance().getCategories()[MathUtils.clamp(Launch.getUI().getForm().getCategoryList().getSelectedIndex(), 0, CurseForgeBrowser.getInstance().getCategories().length - 1)];
@@ -56,9 +59,40 @@ public class CurseForgeBrowser {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            this.modsCache = Maps.newHashMap();
         }
-        System.out.println(category.getLinkExtender());
         Launch.getUI().getForm().getPageLabel().setText(String.format("%s - Page: %d (Max: %d)", category.getName(), page, categoryPages));
+        ThreadUtils.run(() -> {
+            if (!modsCache.containsKey(page))
+                try {
+                    ModsPageParser pageParser = new ModsPageParser(version, getSortType(), page, category);
+                    List<SimpleModContainer> modContainers = pageParser.parseMods();
+                    modsCache.put(page, modContainers.toArray(new SimpleModContainer[modContainers.size()]));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            Launch.getUI().setupMods(modsCache.get(page));
+        });
+        if (page - 1 > 0 && !modsCache.containsKey(page - 1))
+            ThreadUtils.run(() -> {
+                try {
+                    ModsPageParser pageParser = new ModsPageParser(version, getSortType(), page - 1, category);
+                    List<SimpleModContainer> modContainers = pageParser.parseMods();
+                    modsCache.put(page - 1, modContainers.toArray(new SimpleModContainer[modContainers.size()]));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        if (page + 1 <= categoryPages && !modsCache.containsKey(page + 1))
+            ThreadUtils.run(() -> {
+                try {
+                    ModsPageParser pageParser = new ModsPageParser(version, getSortType(), page + 1, category);
+                    List<SimpleModContainer> modContainers = pageParser.parseMods();
+                    modsCache.put(page + 1, modContainers.toArray(new SimpleModContainer[modContainers.size()]));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
     }
     
     public int getPage() {
@@ -85,4 +119,7 @@ public class CurseForgeBrowser {
         return Arrays.asList(categories).stream().filter(category -> category.getName().equalsIgnoreCase(s)).findFirst().orElse(null);
     }
     
+    public int getCategoryPages() {
+        return categoryPages;
+    }
 }
