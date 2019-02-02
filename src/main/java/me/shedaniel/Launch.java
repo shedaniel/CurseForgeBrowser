@@ -13,7 +13,11 @@ import me.shedaniel.utils.ModVersion;
 import me.shedaniel.utils.ThreadUtils;
 import org.apache.commons.io.IOUtils;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -44,10 +48,20 @@ public class Launch {
         }
         ui.editDialogText("Parsing Mod Categories");
         ModCategory[] categories = pageParser.parseCategories();
+        ui.editDialogText("Downloading Default Icons");
+        ImageIcon errorIcon = null;
+        try {
+            ImageIcon imageIcon = new ImageIcon(ImageIO.read(new URL("http://icons.iconarchive.com/icons/custom-icon-design/flatastic-1/256/delete-1-icon.png").openStream()));
+            Image image = imageIcon.getImage();
+            Image scaledImage = image.getScaledInstance(64, 64, java.awt.Image.SCALE_SMOOTH);
+            errorIcon = new ImageIcon(scaledImage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ui.editDialogText("Initialising Browser");
         ui.removeDialog();
         ui.openBrowser();
-        new CurseForgeBrowser(versions.toArray(new ModVersion[versions.size()]), categories);
+        new CurseForgeBrowser(errorIcon, versions.toArray(new ModVersion[versions.size()]), categories);
     }
     
     public static BroswerUI getUI() {

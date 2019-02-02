@@ -1,10 +1,14 @@
 package me.shedaniel;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.shedaniel.parser.ModsPageParser;
 import me.shedaniel.ui.MathUtils;
 import me.shedaniel.utils.*;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +26,12 @@ public class CurseForgeBrowser {
     private ModsPageParser categoryParser;
     private SortType sortType = SortType.POPULARITY;
     private long lastUpdate = -1;
+    private Map<SimpleModContainer, ImageIcon> modIconCache;
+    private List<SimpleModContainer> loading;
+    private Icon errorIcon;
     
-    public CurseForgeBrowser(ModVersion[] versions, ModCategory[] categories) {
+    public CurseForgeBrowser(Icon errorIcon, ModVersion[] versions, ModCategory[] categories) {
+        this.errorIcon = errorIcon;
         CurseForgeBrowser.instance = this;
         this.versions = versions;
         this.categories = categories;
@@ -32,6 +40,8 @@ public class CurseForgeBrowser {
         lastCategory = categories[0];
         lastVersion = versions[0];
         this.modsCache = Maps.newHashMap();
+        this.modIconCache = Maps.newHashMap();
+        this.loading = Lists.newArrayList();
         update();
     }
     
@@ -60,6 +70,10 @@ public class CurseForgeBrowser {
                 e.printStackTrace();
             }
             this.modsCache = Maps.newHashMap();
+        }
+        if (modIconCache.size() > 64) {
+            this.modIconCache = Maps.newHashMap();
+            this.loading = Lists.newArrayList();
         }
         Launch.getUI().getForm().getPageLabel().setText(String.format("%s - Page: %d (Max: %d)", category.getName(), page, categoryPages));
         ThreadUtils.run(() -> {
@@ -122,4 +136,32 @@ public class CurseForgeBrowser {
     public int getCategoryPages() {
         return categoryPages;
     }
+    
+    public boolean isModIconLoading(SimpleModContainer simpleModContainer) {
+        return loading.contains(simpleModContainer);
+    }
+    
+    public void loadIcon(SimpleModContainer simpleModContainer, int w, int h) {
+        ThreadUtils.runImageLoad(() -> {
+            try {
+                ImageIcon imageIcon = new ImageIcon(ImageIO.read(simpleModContainer.getImgSrc()));
+                Image image = imageIcon.getImage();
+                Image scaledImage = image.getScaledInstance(w, h, java.awt.Image.SCALE_SMOOTH);
+                modIconCache.put(simpleModContainer, new ImageIcon(scaledImage));
+            } catch (IOException e) {
+            }
+            Launch.getUI().getForm().getViewingList().repaint();
+        });
+    }
+    
+    public Map<SimpleModContainer, ImageIcon> getModIconCache() {
+        return modIconCache;
+    }
+    
+    public Icon getModIcon(SimpleModContainer simpleModContainer) {
+        if (modIconCache.containsKey(simpleModContainer))
+            return modIconCache.get(simpleModContainer);
+        return errorIcon;
+    }
+    
 }

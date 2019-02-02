@@ -2,6 +2,7 @@ package me.shedaniel.ui;
 
 import me.shedaniel.CurseForgeBrowser;
 import me.shedaniel.utils.ModCategory;
+import me.shedaniel.utils.SimpleModContainer;
 import me.shedaniel.utils.ThreadUtils;
 
 import javax.swing.*;
@@ -11,11 +12,12 @@ public class BrowserForm {
     private JPanel basePanel;
     private JComboBox versionSelector;
     private JList<ModCategory> categoryList;
-    private JList viewingList;
+    private JList<SimpleModContainer> viewingList;
     private JPanel display;
     private JButton nextButton;
     private JButton backButton;
     private JLabel pageLabel;
+    private JButton quickDownloadSelectedButton;
     
     public BrowserForm() {
         versionSelector.addActionListener(actionEvent -> ThreadUtils.run(() -> CurseForgeBrowser.getInstance().update()));

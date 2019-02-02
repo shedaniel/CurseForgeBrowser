@@ -35,6 +35,9 @@ public class ModsPageParser {
         Elements elements = document.getElementsByClass("project-list-item");
         elements.forEach(element -> {
             try {
+                Element avatar = element.getElementsByClass("avatar").first();
+                Element img = avatar.select("img[src~=(?i)\\.(png|jpe?g|gif)]").first();
+                
                 Element details = element.getElementsByClass("details").first();
                 Elements nameWrapper = details.getElementsByClass("name-wrapper overflow-tip");
                 String modName = nameWrapper.text();
@@ -48,7 +51,7 @@ public class ModsPageParser {
                 String description = element.getElementsByClass("description").first().text();
                 
                 // TODO categories
-                containers.add(new SimpleModContainer(link, modName, new Author(new URL("https://minecraft.curseforge.com" + author.attr("href")), author.text()), downloads, description, date));
+                containers.add(new SimpleModContainer(link, new URL(img.attr("src")), modName, new Author(new URL("https://minecraft.curseforge.com" + author.attr("href")), author.text()), downloads, description, date));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

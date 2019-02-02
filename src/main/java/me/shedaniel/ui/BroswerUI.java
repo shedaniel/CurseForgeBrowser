@@ -5,10 +5,7 @@ import me.shedaniel.utils.ModVersion;
 import me.shedaniel.utils.SimpleModContainer;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class BroswerUI implements Runnable {
     
@@ -33,7 +30,7 @@ public class BroswerUI implements Runnable {
     public void openBrowser() {
         formFrame.setContentPane(form.getBasePanel());
         formFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        formFrame.setSize(620, 540);
+        formFrame.setSize(930, 630);
         formFrame.setLocationRelativeTo(null);
         formFrame.setVisible(true);
     }
@@ -51,8 +48,9 @@ public class BroswerUI implements Runnable {
     }
     
     public void setupMods(SimpleModContainer[] containers) {
-        List<String> modsNames = Arrays.stream(containers).map(SimpleModContainer::getName).collect(Collectors.toList());
-        form.getViewingList().setListData(modsNames.toArray(new String[modsNames.size()]));
+        form.getViewingList().setListData(containers);
+        form.getViewingList().setCellRenderer(new SimpleModsEntryRenderer());
+        form.getViewingList().setFixedCellHeight(72);
     }
     
     public BrowserForm getForm() {
