@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+archivesBaseName = "CurseForgeBrowser"
+group 'me.shedaniel'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+    compile 'com.google.guava:guava:27.0.1-jre'
+    implementation 'org.jsoup:jsoup:1.11.3'
+    implementation 'com.google.code.gson:gson:2.8.5'
+}
