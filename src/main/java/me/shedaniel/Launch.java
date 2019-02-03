@@ -6,7 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.shedaniel.parser.ModsPageParser;
 import me.shedaniel.parser.VersionParser;
-import me.shedaniel.ui.BroswerUI;
+import me.shedaniel.ui.BrowserUI;
 import me.shedaniel.utils.ConnectionUtils;
 import me.shedaniel.utils.ModCategory;
 import me.shedaniel.utils.ModVersion;
@@ -30,10 +30,10 @@ public class Launch {
     public static Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static VersionParser versionParser = new VersionParser();
     private static VersionParser.VersionElement[] versionElements;
-    private static BroswerUI ui;
+    private static BrowserUI ui;
     
     public static void main(String[] args) throws IOException, InterruptedException {
-        ThreadUtils.run(ui = new BroswerUI());
+        ThreadUtils.run(ui = new BrowserUI());
         ui.editDialogText("Parsing Versions");
         List<ModVersion> versions = Lists.newArrayList();
         ModsPageParser pageParser = new ModsPageParser();
@@ -64,7 +64,7 @@ public class Launch {
         new CurseForgeBrowser(errorIcon, versions.toArray(new ModVersion[versions.size()]), categories);
     }
     
-    public static BroswerUI getUI() {
+    public static BrowserUI getUI() {
         return ui;
     }
 }

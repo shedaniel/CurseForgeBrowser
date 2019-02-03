@@ -1,5 +1,6 @@
 package me.shedaniel.ui;
 
+import me.shedaniel.utils.DetailedModContainer;
 import me.shedaniel.utils.ModCategory;
 import me.shedaniel.utils.ModVersion;
 import me.shedaniel.utils.SimpleModContainer;
@@ -7,11 +8,14 @@ import me.shedaniel.utils.SimpleModContainer;
 import javax.swing.*;
 import java.util.List;
 
-public class BroswerUI implements Runnable {
+public class BrowserUI implements Runnable {
     
     private LoadingDialog initDialog = new LoadingDialog("Please wait while CurseForgeBrowser is downloading assets.");
     private BrowserForm form = new BrowserForm();
+    private ModsViewingForm viewingForm = null;
     private JFrame formFrame = new JFrame("CurseForgeBrowser");
+    private boolean viewingModDetail = false;
+    private DetailedModContainer currentMod;
     
     @Override
     public void run() {
@@ -55,5 +59,32 @@ public class BroswerUI implements Runnable {
     
     public BrowserForm getForm() {
         return form;
+    }
+    
+    public boolean isViewingModDetail() {
+        return viewingModDetail;
+    }
+    
+    public void viewBrowser() {
+        if (isViewingModDetail()) {
+            viewingModDetail = false;
+            formFrame.setContentPane(form.getBasePanel());
+            viewingForm = null;
+            formFrame.pack();
+        }
+    }
+    
+    public void viewMod(DetailedModContainer modContainer) {
+        if (!isViewingModDetail()) {
+            viewingModDetail = true;
+            currentMod = modContainer;
+            viewingForm = new ModsViewingForm(modContainer);
+            formFrame.setContentPane(viewingForm.getBasePanel());
+            formFrame.pack();
+        }
+    }
+    
+    public ModsViewingForm getViewingForm() {
+        return viewingForm;
     }
 }
